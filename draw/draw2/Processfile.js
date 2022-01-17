@@ -2,42 +2,46 @@
 const fs = require('fs');
 
 
-function process(obj, v) {
-  obj.n++;
-  console.log(v);
-  obj.ht[obj.n] = v;
-  return obj.n;
-}
 
-export default class ProcessFile {
+module.exports = class ProcessFile {
   constructor() {
-    var ht = {};
-    var n = 0;
+    this.ht = {};
+    this.n = 0;
   }
   /*
      process(key, value) {
       console.log(key + ' : ' + value);
     }
   */
-  traverse(o, func) {
-    var l = func.apply(this, [o]);
+
+  process2(v) {
+    this.n++;
+    console.log(this.n);
+    console.log(v);
+    this.ht[this.n] = v;
+    return this.n;
+  }
+
+  traverse(o) {
+    // var l = func.apply(this, [this, o]);
+    this.process2(o);
     console.log('------');
 
     if (Array.isArray(o)) {
       for (var i = 0; i < o.length; i++) {
         var v = o[i];
-        this.traverse(v, func);
+        this.traverse(v);
       }
     } else if (typeof (o) == 'object') {
       var type = o['type'];
       if (type === 'Script' || type === 'CompoundList' || type === 'Pipeline')
-        this.traverse(o['commands'], func);
+        this.traverse(o['commands']);
       else if (type === 'If') {
         // then
 
         // else
       } else if (type === 'Command')
-        func.apply(this, [o]);
+        this.process2(o);
     }
   }
 
@@ -48,7 +52,7 @@ export default class ProcessFile {
 
   processfile() {
     let x = this.readfile();
-    this.traverse(x, process);
+    this.traverse(x);
     return this.ht;
   }
 
@@ -67,11 +71,16 @@ export default class ProcessFile {
     return arr;
   }
 }
-//module.exports = Processfile
-    /*
-    var p = new ProcessFile();
-    for (var l in p.getElements()) {
-      console.log(l);
-    }
-    console.log('das');
-    */
+/*
+ var t=require('./Processfile.js');
+ var tt=new t.Processfile();
+ tt.getElements()
+*/
+// module.exports = Processfile
+/*
+var p = new ProcessFile();
+for (var l in p.getElements()) {
+  console.log(l);
+}
+console.log('das');
+*/
