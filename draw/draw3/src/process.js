@@ -29,13 +29,13 @@ export default class ProcessFile{
       }
     } else if (typeof (o) == 'object') {
       var type = o['type'];
-      if (type == 'Script' || type == 'CompoundList' || type == 'Pipeline')
+      if (type === 'Script' || type === 'CompoundList' || type === 'Pipeline')
         this.traverse(o['commands'], func);
-      else if (type == 'If') {
+      else if (type === 'If') {
         // then
 
         // else
-      } else if (type == 'Command')
+      } else if (type === 'Command')
         func.apply(this, [o]);
     }
   }

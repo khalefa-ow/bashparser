@@ -35,7 +35,7 @@ const ReactFlowRenderer = () => {
     const newNode = {
       id: `${Date.now()}`,
       data: { label: `${name}` },
-      type: "rectangle",
+      type: "default",
       position: {
         x: 0,
         y: 0
@@ -160,7 +160,7 @@ const ReactFlowRenderer = () => {
         onConnect={connectHandler}
         deleteKeyCode={8 || 46}
         onEdgeUpdate={edgeUpdateHandler}
-        nodeTypes={nodeTypes}
+     
         snapToGrid={true}
         snapGrid={[16, 16]}
         connectionLineStyle={{ stroke: "black", strokeWidth: 2 }}
