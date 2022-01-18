@@ -6,6 +6,7 @@ import React, {useState, useEffect } from "react";
 
 import ReactFlow, {removeElements, updateEdge, addEdge, Background, MiniMap, Controls } from "react-flow-renderer";
 
+import { nodeTypes } from "./Nodes";
 //import raw from 'raw.macro';
 //import * as fs from 'fs';
 //import rawdata from './terad-output.json';
@@ -17,7 +18,8 @@ const ReactFlowRenderer = () => {
   const[activeNode, setActiveNode] = useState();
   const[newName, setNewName] = useState("");
   const[instance, setInstance] = useState();
-var n=0;
+
+  var n=0;
 
   const getData=()=>{
     fetch('terad-output.json'
@@ -34,7 +36,7 @@ var n=0;
       })
       .then(function(myJson) {
 console.log(myJson);
-        traverse(myJson);
+        traverse(myJson,-1);
 
       //  setData(myJson)
       });
@@ -59,21 +61,18 @@ console.log(myJson);
     var newNode = {
       id : `${c}`,
       data : {label : `${c}` },
-      type : "default",
+      type : "circle",
       position : {x : 0, y : 0}
     };
     newNode.data = {...newNode.data, id : `${newNode.id}` };
     setCount(count + 1);
-
     setElements((prev) => { return [... prev, newNode ]; });
-
   };
 
-   const addElement = (v) => {
+   const addElement = (v, pr) => {
      console.log("--add Element "+n);
+     if (!v.hasOwnProperty('name')) return;
      n=n+1;
-  if (!v.hasOwnProperty('name')) return;
-
     const newNode = {
       id : `${n}`,
       data : {label : `${v['name']['text']}` },
@@ -81,11 +80,21 @@ console.log(myJson);
       position : {x : 0, y : 0}
     };
     newNode.data = {... newNode.data, id : `${newNode.id}` };
+    if(pr>0){
+      //var prev=n-1;
+      var edge={id:`e${pr}-${n}` ,
+            source:`${pr}`,
+            target: `${n}` };
 
+      setElements((prev) => { return [... prev, newNode,edge ]; });
+    }
+    else
     setElements((prev) => { return [... prev, newNode ]; });
+
+    return n;
   };
 
-  const traverse = (o)=>{
+  const traverse = (o, pr)=>{
 
     //console.log('==================');
     //console.log(o);
@@ -95,14 +104,14 @@ console.log(myJson);
        console.log('-----Array----');
       for (var i = 0; i < o.length; i++) {
         var v = o[i];
-        traverse(v);
+        var p= traverse(v, p);
       }
     } else if (typeof(o) == 'object') {
          console.log('-----Object----');
       var type = o['type'];
       if (type === 'Script' || type === 'CompoundList' ||
                                           type === 'Pipeline')
-        traverse(o['commands']);
+        traverse(o['commands'],0);
       else if (type === 'If') {
         // then
 
@@ -110,7 +119,7 @@ console.log(myJson);
       } else if (type === 'Command'){
       //  func.apply(this, [o]);
     console.log('-----Command----');
-        addElement(o);
+        return addElement(o,pr);
 
       }
     }
@@ -230,11 +239,15 @@ console.log(myJson);
          border : "1px solid black",
          marginLeft : "12.5vw"
        }}>
-      <ReactFlow elements = {elements} onElementsRemove =
-           {elementRemoveHandler} onConnect = {connectHandler} deleteKeyCode =
-               {8 || 46} onEdgeUpdate = {edgeUpdateHandler}
-
-       snapToGrid = {true} snapGrid = {[16, 16]} connectionLineStyle =
+      <ReactFlow elements = {elements}
+      onElementsRemove = {elementRemoveHandler}
+           onConnect = {connectHandler}
+           deleteKeyCode =               {8 || 46}
+           onEdgeUpdate = {edgeUpdateHandler}
+           //nodeTypes={nodeTypes}
+       snapToGrid = {true}
+       snapGrid = {[16, 16]}
+       connectionLineStyle =
        {
          {
          stroke:
