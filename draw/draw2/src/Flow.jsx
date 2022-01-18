@@ -5,18 +5,40 @@
 import React, {useState, useEffect } from "react";
 
 import ReactFlow, {removeElements, updateEdge, addEdge, Background, MiniMap, Controls } from "react-flow-renderer";
-import raw from 'raw.macro';
-//import * as fs from 'fs';
 
-import rawdata from './terad-output.json';
+//import raw from 'raw.macro';
+//import * as fs from 'fs';
+//import rawdata from './terad-output.json';
 
 const ReactFlowRenderer = () => {
-  const[elements, setElements] = useState([]);
+  var[elements, setElements] = useState([]);
   const[count, setCount] = useState(0);
   const[name, setName] = useState("");
   const[activeNode, setActiveNode] = useState();
   const[newName, setNewName] = useState("");
   const[instance, setInstance] = useState();
+var n=0;
+
+  const getData=()=>{
+    fetch('terad-output.json'
+    ,{
+      headers : {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+       }
+    }
+    )
+      .then(function(response){
+      //  console.log(response)
+        return response.json();
+      })
+      .then(function(myJson) {
+console.log(myJson);
+        traverse(myJson);
+
+      //  setData(myJson)
+      });
+  }
 
   useEffect(() =>
                  {
@@ -32,54 +54,71 @@ const ReactFlowRenderer = () => {
     setElements((prev) => addEdge(params, prev));
   };
 
-  const addRectangleHandler = () => {
+  var addRectangleHandler = () => {
+  var c=count;
+    var newNode = {
+      id : `${c}`,
+      data : {label : `${c}` },
+      type : "default",
+      position : {x : 0, y : 0}
+    };
+    newNode.data = {...newNode.data, id : `${newNode.id}` };
     setCount(count + 1);
+
+    setElements((prev) => { return [... prev, newNode ]; });
+
+  };
+
+   const addElement = (v) => {
+     console.log("--add Element "+n);
+     n=n+1;
+  if (!v.hasOwnProperty('name')) return;
+
     const newNode = {
-      id : `${count}`,
-      data : {label : `${count}` },
+      id : `${n}`,
+      data : {label : `${v['name']['text']}` },
       type : "default",
       position : {x : 0, y : 0}
     };
     newNode.data = {... newNode.data, id : `${newNode.id}` };
 
     setElements((prev) => { return [... prev, newNode ]; });
-    setName("");
   };
 
-   const add1 = (ht, n, v) => {
-    n++;
+  const traverse = (o)=>{
 
-    ht[n] = v;
-    console.log(n+":"+ v);
-    return n;
-  };
-
-  const traverse = (ht, n, o)=>{
-    //var l = func.apply(this, [ ht, n, o ]);
-    add1(ht,n,o);
-    console.log('------');
+    //console.log('==================');
+    //console.log(o);
+    //console.log('---------');
 
     if (Array.isArray(o)) {
+       console.log('-----Array----');
       for (var i = 0; i < o.length; i++) {
         var v = o[i];
-        this.traverse(v);
+        traverse(v);
       }
     } else if (typeof(o) == 'object') {
+         console.log('-----Object----');
       var type = o['type'];
       if (type === 'Script' || type === 'CompoundList' ||
                                           type === 'Pipeline')
-        this.traverse(o['commands']);
+        traverse(o['commands']);
       else if (type === 'If') {
         // then
 
         // else
-      } else if (type === 'Command');
+      } else if (type === 'Command'){
       //  func.apply(this, [o]);
+    console.log('-----Command----');
+        addElement(o);
+
+      }
     }
   };
 
   const LoadHandler = () => {
-    var ht = {};
+    getData();
+  /*  var ht = {};
     var n = 0;
         // const rawdata = raw('./terad-output.json');
     //var rawdata = fs.readFileSync('terad-output.json');
@@ -91,8 +130,8 @@ const ReactFlowRenderer = () => {
       m['id'] = n++;
       m['data'] = x;
 
-      console.log(m);
-    }
+      console.log(m);*/
+  //  }
     /* setCount(0);
      var nodes = ProcessFile.getElements();
      for (var n in nodes) {
