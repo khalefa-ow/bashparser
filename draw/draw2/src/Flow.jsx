@@ -2,11 +2,56 @@
 //https://stackoverflow.com/questions/39695275/react-js-handling-file-upload
 //https://stackoverflow.com/questions/31758081/loading-json-data-from-local-file-into-react-js
 
-import React, {useState, useEffect } from "react";
+import React, {useState, useEffect, useCallback } from "react";
 
-import ReactFlow, {removeElements, updateEdge, addEdge, Background, MiniMap, Controls } from "react-flow-renderer";
+import ReactFlow, {removeElements, updateEdge, addEdge, Background, MiniMap, Controls,isNode } from "react-flow-renderer";
 
 import { nodeTypes } from "./Nodes";
+import dagre from 'dagre';
+
+import './layouting.css';
+
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+
+  const getLayoutedElements = (elements, direction = 'TB') => {
+  const isHorizontal = direction === 'LR';
+  dagreGraph.setGraph({ rankdir: direction });
+  const nodeWidth = 172;
+  const nodeHeight = 36;
+
+  elements.forEach((el) => {
+    if (isNode(el)) {
+      dagreGraph.setNode(el.id, { width: nodeWidth, height: nodeHeight });
+    } else {
+      dagreGraph.setEdge(el.source, el.target);
+    }
+  });
+
+  dagre.layout(dagreGraph);
+
+  return elements.map((el) => {
+    if (isNode(el)) {
+      const nodeWithPosition = dagreGraph.node(el.id);
+      el.targetPosition = isHorizontal ? 'left' : 'top';
+      el.sourcePosition = isHorizontal ? 'right' : 'bottom';
+
+      // unfortunately we need this little hack to pass a slightly different position
+      // to notify react flow about the change. Moreover we are shifting the dagre node position
+      // (anchor=center center) to the top left so it matches the react flow node anchor point (top left).
+      el.position = {
+        x: nodeWithPosition.x - nodeWidth / 2 + Math.random() / 1000,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      };
+    }
+
+    return el;
+  });
+};
+
+const layoutedElements = getLayoutedElements([]);
+
 //import raw from 'raw.macro';
 //import * as fs from 'fs';
 //import rawdata from './terad-output.json';
@@ -31,14 +76,11 @@ const ReactFlowRenderer = () => {
     }
     )
       .then(function(response){
-      //  console.log(response)
         return response.json();
       })
       .then(function(myJson) {
-console.log(myJson);
+        //console.log(myJson);
         traverse(myJson,-1);
-
-      //  setData(myJson)
       });
   }
 
@@ -71,22 +113,24 @@ console.log(myJson);
 
    const addElement = (v, pr) => {
      console.log("--add Element "+n);
-     if (!v.hasOwnProperty('name')) return;
+     if (!v.hasOwnProperty('name')) return -1;
      n=n+1;
     const newNode = {
       id : `${n}`,
       data : {label : `${v['name']['text']}` },
       type : "default",
-      position : {x : 0, y : 0}
+        position : {x : Math.random()/100, y : Math.random() /100}
     };
     newNode.data = {... newNode.data, id : `${newNode.id}` };
     if(pr>0){
+      if (pr!=null && n!=null){
       //var prev=n-1;
       var edge={id:`e${pr}-${n}` ,
             source:`${pr}`,
             target: `${n}` };
 
       setElements((prev) => { return [... prev, newNode,edge ]; });
+    }
     }
     else
     setElements((prev) => { return [... prev, newNode ]; });
@@ -127,73 +171,16 @@ console.log(myJson);
 
   const LoadHandler = () => {
     getData();
-  /*  var ht = {};
-    var n = 0;
-        // const rawdata = raw('./terad-output.json');
-    //var rawdata = fs.readFileSync('terad-output.json');
-    var jsondata = JSON.parse(rawdata);
-    traverse(jsondata);
 
-    for (var x in ht) {
-      var m = {};
-      m['id'] = n++;
-      m['data'] = x;
-
-      console.log(m);*/
-  //  }
-    /* setCount(0);
-     var nodes = ProcessFile.getElements();
-     for (var n in nodes) {
-       const newNode = {
-         id : `${count}`,
-         data : {label : `${count}` },
-         type : "default",
-         position : {x : 0, y : 0}
-       };
-       newNode.data = {... newNode.data, id : `${newNode.id}` };
-
-       setElements((prev) = > { return [... prev, newNode ]; });
-       setName("");
-     }*/
-  };
-  const addCircleHandler = () => {
-    const newNode = {
-      id : `${Date.now()}`,
-      data : {label : `${name}` },
-      type : "circle",
-      position : {x : 0, y : 0}
-    };
-    newNode.data = {... newNode.data, id : `${newNode.id}` };
-
-    setElements((prev) => { return [... prev, newNode ]; });
-    setName("");
   };
 
-  const addTriangleHandler = () => {
-    const newNode = {
-      id : `${Date.now()}`,
-      data : {label : `${name}` },
-      type : "triangle",
-      position : {x : 0, y : 0}
-    };
-    newNode.data = {... newNode.data, id : `${newNode.id}` };
-
-    setElements((prev) => { return [... prev, newNode ]; });
-    setName("");
-  };
-
-  const addTextHandler = () => {
-    const newNode = {
-      id : `${Date.now()}`,
-      data : {label : `${name}` },
-      type : "text",
-      position : {x : 0, y : 0}
-    };
-    newNode.data = {... newNode.data, id : `${newNode.id}` };
-
-    setElements((prev) => { return [... prev, newNode ]; });
-    setName("");
-  };
+  const AdjustLayout = useCallback(
+      () => {
+        const layoutedElements = getLayoutedElements(elements, 'TB');
+        setElements(layoutedElements);
+      },
+      [elements]
+    );
 
   const edgeUpdateHandler = (oldEdge, newConnection) =>
        setElements((els) => updateEdge(oldEdge, newConnection, els));
@@ -233,11 +220,12 @@ console.log(myJson);
   };
 
   return (
-      <div style = {{
+      <div     className="layoutflow" style = {{
          height : "75vh",
          width : "75vw",
          border : "1px solid black",
          marginLeft : "12.5vw"
+
        }}>
       <ReactFlow elements = {elements}
       onElementsRemove = {elementRemoveHandler}
@@ -260,7 +248,10 @@ console.log(myJson);
       <div>
 
       <button type = "button" onClick = {addRectangleHandler}>
-          Add</ button><button type = "button" onClick = {LoadHandler}>
+          Add</ button>
+          <button type = "button" onClick = {AdjustLayout}>
+              AdjustLayout</ button>
+          <button type = "button" onClick = {LoadHandler}>
               Load</ button>
       <button type = "button" onClick = {saveChangesHandler}>
           Save changes</ button>

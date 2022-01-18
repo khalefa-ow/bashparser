@@ -1,3 +1,5 @@
 todo
 
-ngx-json-viewer to compule
+ngx-json-viewer 
+
+https://www.npmjs.com/package/cytoscape
