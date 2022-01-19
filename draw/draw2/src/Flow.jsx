@@ -14,12 +14,11 @@ import './layouting.css';
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-
   const getLayoutedElements = (elements, direction = 'TB') => {
   const isHorizontal = direction === 'LR';
   dagreGraph.setGraph({ rankdir: direction });
-  const nodeWidth = 172;
-  const nodeHeight = 36;
+  const nodeWidth = 120;
+  const nodeHeight = 30;
 
   elements.forEach((el) => {
     if (isNode(el)) {
@@ -111,16 +110,43 @@ const ReactFlowRenderer = () => {
     setElements((prev) => { return [... prev, newNode ]; });
   };
 
+const AddEdge2= (n,pr) => {
+    var edge={id:`e${pr}-${n}` ,
+          source:`${pr}`,
+          target: `${n}` };
+
+    setElements((prev) => { return [... prev, edge ]; });
+
+};
    const addElement = (v, pr) => {
-     console.log("--add Element "+n);
-     if (!v.hasOwnProperty('name')) return -1;
+      console.log("--add Element "+ v['type']+' ' +n );
+     //if (!v.hasOwnProperty('name')) return -1;
+      if(!v.hasOwnProperty('name'))
+          if( !(v['type']=='If' || v['type']=='EndIf')) return -1;
      n=n+1;
-    const newNode = {
-      id : `${n}`,
-      data : {label : `${v['name']['text']}` },
-      type : "default",
-        position : {x : Math.random()/100, y : Math.random() /100}
-    };
+     var newNode = {};
+     if(v['type']=='If'){
+        newNode = {
+            id : `${n}`,  data : {label : `IF` }, type : "default",
+            position : {x : Math.random()/100, y : Math.random() /100}
+          };
+          }
+          else{
+          if (v['type']=='EndIf')
+           {
+             newNode = {
+              id : `${n}`,
+              type : "default",
+                position : {x : Math.random()/100, y : Math.random() /100}
+            };
+          }else
+              newNode = {
+                    id : `${n}`,
+                    data : {label : `${v['name']['text']}   ${n}` },
+                    type : "default",   position : {x : Math.random()/100, y : Math.random() /100}
+                  };
+
+}
     newNode.data = {... newNode.data, id : `${newNode.id}` };
     if(pr>0){
       if (pr!=null && n!=null){
@@ -139,27 +165,41 @@ const ReactFlowRenderer = () => {
   };
 
   const traverse = (o, pr)=>{
-
     //console.log('==================');
     //console.log(o);
     //console.log('---------');
-
     if (Array.isArray(o)) {
-       console.log('-----Array----');
+      console.log('-----Array----');
+      var p=pr;
       for (var i = 0; i < o.length; i++) {
         var v = o[i];
-        var p= traverse(v, p);
+         p= traverse(v, p);
       }
+      return p;
     } else if (typeof(o) == 'object') {
          console.log('-----Object----');
-      var type = o['type'];
-      if (type === 'Script' || type === 'CompoundList' ||
+         var type = o['type'];
+         if (type === 'Script' || type === 'CompoundList' ||
                                           type === 'Pipeline')
-        traverse(o['commands'],0);
-      else if (type === 'If') {
-        // then
-
+         return traverse(o['commands'],pr);
+         else if (type === 'If') {
+           var then1=-1;
+           var else1 =-1;
+           // then
+           var if1=addElement(o,pr);
+           if(o.hasOwnProperty('then'))
+                then1=traverse(o['then'],if1);
         // else
+        if(o.hasOwnProperty('else'))
+          else1=traverse(o['else'],if1);
+
+        var if2=addElement({'type':'EndIf'},then1);
+if(else1== -1)
+        AddEdge2(if1,if2);
+else
+    AddEdge2(else1,if2);
+    //AddEdge2(then1, if2);
+        return if2;
       } else if (type === 'Command'){
       //  func.apply(this, [o]);
     console.log('-----Command----');
