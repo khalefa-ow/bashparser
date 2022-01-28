@@ -119,11 +119,12 @@ const AddEdge2= (n,pr) => {
 
 };
    const addElement = (v, pr) => {
-      console.log("--add Element "+ v['type']+' ' +n );
+
      //if (!v.hasOwnProperty('name')) return -1;
       if(!v.hasOwnProperty('name'))
           if( !(v['type']=='If' || v['type']=='EndIf')) return -1;
      n=n+1;
+       console.log("--add Element "+ v['type']+' ' +n );
      var newNode = {};
      if(v['type']=='If'){
         newNode = {
