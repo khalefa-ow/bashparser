@@ -1,0 +1,119 @@
+
+.command-node2{
+ width: 200px;
+  height: 100px;
+  background: red;
+
+}
+
+.command-node{
+border-style: solid;
+ padding: 10px;
+  border-radius: 3px;
+  width: 50px;
+
+  font-size: 12px;
+  color: #222;
+  text-align: center;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #1a192b;
+}
+
+.command-node__handle {
+  pointer-events: none;
+
+  &.connectable {
+    pointer-events: all;
+  }
+}
+
+.command-node__handle-bottom {
+  top: auto;
+  left: 50%;
+  bottom: -4px;
+  transform: translate(-50%, 0);
+  color:yellow;
+}
+
+.command-node__handle-top {
+  left: 50%;
+  top: -4px;
+  transform: translate(-50%, 0);
+  color:red;
+}
+
+.if-node{
+  border-style: solid;
+   padding: 10px;
+    border-radius: 5px;
+    width: 50px;
+
+    font-size: 12px;
+    color: #222;
+    text-align: center;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #1a192b;
+
+}
+
+.diamond-node{
+    border-width: 1px;
+    border-style: solid;
+    border-color: #1a192b;
+    transform:rotate(45deg);
+}
+.diamond-node-label{
+    transform:rotate(-45deg);
+}
+
+
+    .diamond-node2 {
+      width: 0;
+      height: 0;
+      border: 50px solid transparent;
+      border-bottom-color: red;
+      position: relative;
+      top: -50px;
+    }
+    .diamond-node2:after {
+      content: '';
+      position: absolute;
+      left: -50px;
+      top: 50px;
+      width: 0;
+      height: 0;
+      border: 50px  ;
+
+    }
+
+.endif-node2{
+  color: black;
+   padding: '14px';
+    borderRadius: '20px';
+}
+
+.endif-node{
+  width: 0px;
+  height: 0px;
+  border-radius: 20px;
+  border-style: solid;
+  border-width: 2px;
+
+  border-color: blue;
+  padding: 10px 10px;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.handlestyle{
+  width: 0px;
+  height: 0px;
+  border-radius:5px;
+  border-style: solid;
+  border-width: 2px;
+
+  border-color: blue;
+  padding: 2px 2px;
+  background-color: red;
+}

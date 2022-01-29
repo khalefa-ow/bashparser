@@ -1,5 +1,13 @@
+//https://www.pluralsight.com/guides/uploading-files-with-reactjs
+//https://stackoverflow.com/questions/39695275/react-js-handling-file-upload
+//https://stackoverflow.com/questions/31758081/loading-json-data-from-local-file-into-react-js
+
+
 todo
 
-ngx-json-viewer 
+ngx-json-viewer
 
 https://www.npmjs.com/package/cytoscape
+
+
+https://www.grapecity.com/blogs/create-great-diagrams-using-css-grid-layouts

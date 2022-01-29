@@ -1,10 +1,15 @@
-//https://www.pluralsight.com/guides/uploading-files-with-reactjs
-//https://stackoverflow.com/questions/39695275/react-js-handling-file-upload
-//https://stackoverflow.com/questions/31758081/loading-json-data-from-local-file-into-react-js
 
 import React, {useState, useEffect, useCallback } from "react";
 
-import ReactFlow, {removeElements, updateEdge, addEdge, Background, MiniMap, Controls,isNode } from "react-flow-renderer";
+import  {removeElements, updateEdge, addEdge, Background, MiniMap, Controls,isNode } from "react-flow-renderer";
+
+ import ReactFlow from 'react-flow-renderer';
+
+// you need these styles for React Flow to work properly
+ import './style.css';
+
+// additionally you can load the default theme
+ import './theme.css';
 
 import { nodeTypes } from "./Nodes";
 import dagre from 'dagre';
@@ -51,9 +56,6 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 const layoutedElements = getLayoutedElements([]);
 
-//import raw from 'raw.macro';
-//import * as fs from 'fs';
-//import rawdata from './terad-output.json';
 
 const ReactFlowRenderer = () => {
   var[elements, setElements] = useState([]);
@@ -66,7 +68,7 @@ const ReactFlowRenderer = () => {
   var n=0;
 
   const getData=()=>{
-    fetch('terad-output.json'
+    fetch('terad1.json'
     ,{
       headers : {
         'Content-Type': 'application/json',
@@ -109,26 +111,36 @@ const ReactFlowRenderer = () => {
     setCount(count + 1);
     setElements((prev) => { return [... prev, newNode ]; });
   };
+  const AddEdge3= (n,pr ) => {
+      var edge={id:`e${pr}-${n}` ,
+            source:`${pr}`,
+            target: `${n}`
 
-const AddEdge2= (n,pr) => {
+          };
+
+      setElements((prev) => { return [... prev, edge ]; });
+      console.log("Edge 3----"+pr+"---->"+ n);
+
+  };
+const AddEdge2= (n,pr ) => {
     var edge={id:`e${pr}-${n}` ,
           source:`${pr}`,
-          target: `${n}` };
+          target: `${n}`
+
+        };
 
     setElements((prev) => { return [... prev, edge ]; });
+    console.log("Edge ----"+pr+"---->"+ n);
 
 };
-   const addElement = (v, pr) => {
-
-     //if (!v.hasOwnProperty('name')) return -1;
-      if(!v.hasOwnProperty('name'))
+   const addElement = (v) => {
+     if(!v.hasOwnProperty('name'))
           if( !(v['type']=='If' || v['type']=='EndIf')) return -1;
-     n=n+1;
-       console.log("--add Element "+ v['type']+' ' +n );
+            n=n+1;
      var newNode = {};
      if(v['type']=='If'){
         newNode = {
-            id : `${n}`,  data : {label : `IF` }, type : "default",
+            id : `${n}`,  data : {label : `If` }, type : "diamond",
             position : {x : Math.random()/100, y : Math.random() /100}
           };
           }
@@ -137,44 +149,42 @@ const AddEdge2= (n,pr) => {
            {
              newNode = {
               id : `${n}`,
-              type : "default",
+              type : "circle",
                 position : {x : Math.random()/100, y : Math.random() /100}
             };
-          }else
+          }else{
               newNode = {
                     id : `${n}`,
                     data : {label : `${v['name']['text']}   ${n}` },
-                    type : "default",   position : {x : Math.random()/100, y : Math.random() /100}
+                    type : "cmnd",   position : {x : Math.random()/100, y : Math.random() /100}
                   };
+                  }
 
 }
     newNode.data = {... newNode.data, id : `${newNode.id}` };
-    if(pr>0){
-      if (pr!=null && n!=null){
-      //var prev=n-1;
-      var edge={id:`e${pr}-${n}` ,
-            source:`${pr}`,
-            target: `${n}` };
-
-      setElements((prev) => { return [... prev, newNode,edge ]; });
-    }
-    }
-    else
     setElements((prev) => { return [... prev, newNode ]; });
 
     return n;
   };
 
   const traverse = (o, pr)=>{
-    //console.log('==================');
-    //console.log(o);
-    //console.log('---------');
     if (Array.isArray(o)) {
       console.log('-----Array----');
       var p=pr;
       for (var i = 0; i < o.length; i++) {
         var v = o[i];
-         p= traverse(v, p);
+         var t= traverse(v, p);
+         if(t!=-1){
+
+           var edge={id:`e${p}-${t}` ,
+                 source:`${p}`,
+                 target: `${t}`, animated:true
+
+               };
+
+           setElements((prev) => { return [... prev, edge ]; });
+         }
+         p=t;
       }
       return p;
     } else if (typeof(o) == 'object') {
@@ -187,26 +197,31 @@ const AddEdge2= (n,pr) => {
            var then1=-1;
            var else1 =-1;
            // then
-           var if1=addElement(o,pr);
-           if(o.hasOwnProperty('then'))
+           var if1=addElement(o);
+           if(o.hasOwnProperty('then')){
                 then1=traverse(o['then'],if1);
-        // else
-        if(o.hasOwnProperty('else'))
-          else1=traverse(o['else'],if1);
 
-        var if2=addElement({'type':'EndIf'},then1);
-if(else1== -1)
-        AddEdge2(if1,if2);
-else
-    AddEdge2(else1,if2);
-    //AddEdge2(then1, if2);
-        return if2;
-      } else if (type === 'Command'){
-      //  func.apply(this, [o]);
-    console.log('-----Command----');
-        return addElement(o,pr);
+              }
+          // else
+          if(o.hasOwnProperty('else')){
+             else1=traverse(o['else'],if1);
+           }
 
-      }
+          var if2=addElement({'type':'EndIf'});
+       AddEdge2(if2,then1);
+
+          if(else1!= -1)
+
+           AddEdge2(if2,else1);
+             else
+              AddEdge2(if2,if1);
+
+            return if2;
+          } else if (type === 'Command'){
+             //  func.apply(this, [o]);
+            console.log('-----Command----');
+            return addElement(o);
+          }
     }
   };
 
@@ -273,7 +288,7 @@ else
            onConnect = {connectHandler}
            deleteKeyCode =               {8 || 46}
            onEdgeUpdate = {edgeUpdateHandler}
-           //nodeTypes={nodeTypes}
+           nodeTypes={nodeTypes}
        snapToGrid = {true}
        snapGrid = {[16, 16]}
        connectionLineStyle =

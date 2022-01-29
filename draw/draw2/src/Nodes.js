@@ -1,107 +1,102 @@
+
+/*---*/
+import './nodestyles.css';
+
 import React from 'react';
 import {Handle} from 'react-flow-renderer';
 
-const HandleStyle = {
-  width: '1px',
-  height: '1px',
-  color: '#8080FF',
-  marginLeft: 5,
-  borderRadius: '50%'
-};
+const CommandNode = ({data}) => {
+  return (<div className = 'command-node'>
 
-const RectangleNode = ({data}) => {
-  return (
-    <div style={{
-    background: 'red', padding: '14px' }}>
-      <Handle
+ <Handle
   type = 'target'
-  position = 'top'
-  id = {`${data.id}.top`} style = {
-    { HandleStyle }
-  } />
-      <div id={data.id}>{data.label}</div > < Handle
-  type = 'source'
-  position = 'down'
-        id={`${data.id}.down`}
-        style={
-    { HandleStyle }}
+  id={`${data.id}.top`}
+  position =
+      'top'
       />
 
-    </div>
-  );
+      <div id = {data.id}>{data.label}<
+          /div >
+          <Handle
+  type = 'source'
+  id={`${data.id}.bottom`}
+  position = 'bottom'
+   />
+
+      </div>);
 };
+
+
 
 const CircleNode = ({data}) => {
   return (
     <div
-  style = {
-    {
-      backgroundColor: '#9ca8b3', padding: '14px', borderRadius: '50px'
-    }
-  } > <
+  className="endif-node"
+   >
+  <
       Handle
   type = 'target'
-  position = 'left'
-  id = {`${data.id}.left`} style = {
-    { borderRadius: '0' }
-  } />
-      <div id={data.id}>{data.label}</div > < Handle
+  position = 'bottom'
+  id = {`${data.id}.bottom`}
+  className= "handlestyle" />
+
+      <div id = {data.id}>{data.label}<
+          /div > < Handle
   type = 'source'
   position = 'right'
-  id = {`${data.id}.right1`} style =
+  id = {`${data.id}.right`} style =
   {
     { top: '30%', borderRadius: 0 }
-  } />
-      <Handle
-        type="source"
-        position="right"
-        id={`${data.id}.right2`}
-        style={{ top: "70%", borderRadius: 0 }}
+  } /><
+      Handle
+  type = 'source'
+  position = 'left'
+        id={`${data.id}.left`}
+        style={
+    { top: '70%', borderRadius: 0 }}
       / >
       </div>
   );
 };
 
-const DiamondNode = ({data}) => {
+const IfNode = ({data}) => {
   return (
-    <div className='diamond-node'>
+    <div className='if-node'>
       <Handle
         type='target'
-        position='top'
         id={`${data.id}.top`}
-        style={{ borderRadius: 0 }}
-      />
-      <div id={data.id} className="triangle-node-text">
-        {data.label}
-      </div>
+        className= "handlestyle" />
+      <div id = {data.id} className="if-node-label">{data.label}<
+          /div>
       <Handle
         type='source'
-        position='bottom'
-        id={`${data.id}.bottom1`}
-        style={{ left: '30%', borderRadius: 0 }}
-      />
-      <Handle
-        type="source"
-        position="bottom"
-        id={`${data.id}.bottom2`}
-        style={{ left: "70%", borderRadius: 5 }}
+        id={`${data.id}.then`}
+          className= "handlestyle"
+            position='left'
+      /><
+      Handle
+  type = 'source'
+        id={`${data.id}.else`}
+          className= "handlestyle"
+            position = 'right'
       />
     </div>
   );
 };
 
-export const TextNode = ({ data }) => {
-  return (
-    <div style={{ background: "transparent", padding: "14px" }}>
-      <div id={data.id}>{data.label}</div>
-    </div>
-  );
+export const TextNode = ({data}) => {
+  return (<div style = {
+    {
+      background: 'transparent', padding: '14px'
+    }
+  }><div id = {data.id}>{data.label}</div>
+    </div>);
 };
 
 export const nodeTypes = {
   circle: CircleNode,
-  rectangle: RectangleNode,
+  cmnd: CommandNode,
 
   text: TextNode,
-  diamond:DiamondNode
+  diamond: IfNode
 };

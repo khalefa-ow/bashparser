@@ -1,0 +1,97 @@
+{
+	"type": "Script",
+	"commands": [{
+			"type": "If",
+			"clause": {
+				"type": "CompoundList",
+				"commands": [{
+					"type": "Command",
+					"name": {
+						"text": "[",
+						"type": "Word"
+					}
+
+				}]
+			},
+			"then": {
+				"type": "CompoundList",
+				"commands": [{
+						"type": "Command",
+						"name": {
+							"text": "echo",
+							"type": "Word"
+						},
+						"suffix": [{
+							"text": "### Help for TERAD ###\n# Inputs are:\n# 1. A file to search for TE in fasta format\n# 2. The number of cores to use\n# 3. The custom library to search for TE\n# \n# Make sure your input file, TERAD, extract_cdhit2.R, and RAD_TE_summary.R in the same folder as well as your custom TE library in fasta format\n# \n# Test run:\n# ./TERAD test_file.fasta 4 ./arthro_ES_ND_PV_classified.fa none\n# or \n# ./TERAD test_file.fasta 4 none arthropods        \n\n\n# \n# See readme for installation instructions\n",
+							"type": "Word"
+						}]
+					},
+					{
+						"type": "Command",
+						"name": {
+							"text": "exit",
+							"type": "Word"
+						},
+						"suffix": [{
+							"text": "0",
+							"type": "Word"
+						}]
+					}
+				]
+			}
+		},
+		{
+			"type": "Command",
+			"name": {
+				"text": "echo",
+				"type": "Word"
+			},
+			"suffix": [{
+				"text": "\n\n########################################\n### Thanks for using TERAD\n########################################",
+				"type": "Word"
+			}]
+		},
+
+
+		{
+			"type": "Command",
+			"name": {
+				"text": "echo",
+				"type": "Word"
+			},
+			"suffix": [{
+				"text": "\n\n########################################\n### Input parameters\n########################################\n",
+				"type": "Word"
+			}]
+		},
+		{
+			"type": "Command",
+			"name": {
+				"text": "echo",
+				"type": "Word"
+			},
+			"suffix": [{
+				"text": "\"1. File name: $1\"",
+				"expansion": [{
+					"loc": {
+						"start": 15,
+						"end": 16
+					},
+					"parameter": 1,
+					"type": "ParameterExpansion",
+					"kind": "positional"
+				}],
+				"type": "Word"
+			}]
+		},
+		{
+			"type": "Command",
+			"name": {
+				"text": "echo"
+
+
+
+			}
+		}
+	]
+}
