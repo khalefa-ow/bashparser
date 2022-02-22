@@ -1,0 +1,33 @@
+
+const initialElements = [
+  {
+    id: "1",
+    type: "process",
+    data: { label: "process node o" },
+    position: { x: 250, y: 5 }
+  },
+  {
+    id: "2",
+    type: "inout",
+    data: { label: "input node" },
+    position: { x: 100, y: 140 }
+  },
+  {
+    id: "3",
+    type: "cond",
+    data: { label: "cond node" },
+    position: { x: 150, y: 100 }
+  },
+  {
+    id: "4",
+    type: "endif",
+    position: { x: 200, y: 250 }
+  },
+  {
+    id: "e3-3",
+    source: "3",
+    sourceHandle: "left",
+    target: "2",
+    targetHandle: "bottom"
+  }
+];
